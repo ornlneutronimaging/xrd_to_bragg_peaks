@@ -94,5 +94,16 @@ class TestXrdFileParser(TestCase):
                              'data_first_line': 19,
                              }
 
+        data_expected = {'2theta': [20, 20.01, 20.02, 20.03, 20.04, 20.05, 20.06],
+                         'intensity': [165., 187., 159., 160., 153., 203., 168.],
+                         'error': [1., 1., 1., 1., 1., 1., 1.]}
+
         for key in metadata_expected.keys():
             assert metadata_returned[key] == metadata_expected[key]
+
+        data_returned = metadata_returned['data']
+
+        for key in data_returned.keys():
+            for _exp, _return in zip(data_returned[key], data_expected[key]):
+                assert _exp == _return
+

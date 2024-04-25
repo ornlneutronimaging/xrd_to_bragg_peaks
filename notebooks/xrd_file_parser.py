@@ -1,5 +1,7 @@
 import os
 import re
+import pandas as pd
+import numpy as np
 
 xrd_patterns = {'ras': {'alpha1': r"\*HW_XG_WAVE_LENGTH_ALPHA1\s{1}\"(\d\.\d*)\"",
                         'alpha2': r"\*HW_XG_WAVE_LENGTH_ALPHA2\s{1}\"(\d\.\d*)\"",
@@ -77,5 +79,15 @@ def ras_file_parser(xrd_file_name):
 
         if line.startswith(xrd_starts_with['ras']['data_start']):
             break
+
+    # loading data now
+    data = pd.read_csv(xrd_file_name,
+                       names=['2theta', 'intensity', 'error'],
+                       skiprows=metadata['data_first_line'],
+                       sep=" ",
+                       encoding='latin1')
+    metadata['data'] = {'2theta': np.array(data['2theta']),
+                        'intensity': np.array(data['intensity']),
+                        'error': np.array(data['error'])}
 
     return metadata
