@@ -66,9 +66,12 @@ def ras_file_parser(xrd_file_name):
 
         for key in xrd_patterns['ras'].keys():
 
-            metadata[key] = _pattern_match(line=line,
-                                           pattern=xrd_patterns['ras'][key],
-                                           line_starts_with=xrd_starts_with['ras'][key])
+            match = _pattern_match(line=line,
+                                   pattern=xrd_patterns['ras'][key],
+                                   line_starts_with=xrd_starts_with['ras'][key])
+            if match:
+                metadata[key] = match
+                break
 
         metadata['data_first_line'] += 1
 
