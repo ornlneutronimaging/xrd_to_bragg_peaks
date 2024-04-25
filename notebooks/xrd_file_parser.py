@@ -86,6 +86,7 @@ def ras_file_parser(xrd_file_name):
                        skiprows=metadata['data_first_line'],
                        sep=" ",
                        encoding='latin1')
+    data = data[:-2]
     metadata['data'] = {'2theta': np.array(data['2theta']),
                         'intensity': np.array(data['intensity']),
                         'error': np.array(data['error'])}
