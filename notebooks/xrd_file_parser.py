@@ -67,6 +67,7 @@ def asc_file_parser(xrd_file_name):
                            'stop': None,
                            'step': None,
                            },
+                'data': None,
                 'data_first_line': 0,
                 }
     content = file_content(xrd_file_name)
@@ -78,6 +79,7 @@ def asc_file_parser(xrd_file_name):
             match = _pattern_match(line=line,
                                    pattern=xrd_patterns['asc'][_key],
                                    line_starts_with=xrd_starts_with['asc'][_key])
+
             if match:
                 metadata[_key] = match
                 break
@@ -96,6 +98,16 @@ def asc_file_parser(xrd_file_name):
         if line.startswith(xrd_starts_with['asc']['data_start']):
             first_data_row += 1
             metadata['data_first_line'] = first_data_row
+
+    # retrieve data
+    full_data = []
+    content = content[first_data_row:-3]
+    for _row in content:
+        _row_array = _row.split(",")
+        for _element in _row_array:
+            full_data.append(int(_element.strip()))
+
+    metadata['data'] = full_data
 
     return metadata
 
