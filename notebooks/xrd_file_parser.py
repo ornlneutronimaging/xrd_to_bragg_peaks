@@ -98,16 +98,19 @@ def asc_file_parser(xrd_file_name):
         if line.startswith(xrd_starts_with['asc']['data_start']):
             first_data_row += 1
             metadata['data_first_line'] = first_data_row
+            break
 
     # retrieve data
     full_data = []
+    content = file_content(xrd_file_name)
     content = content[first_data_row:-3]
     for _row in content:
         _row_array = _row.split(",")
         for _element in _row_array:
             full_data.append(int(_element.strip()))
 
-    metadata['data'] = full_data
+
+    metadata['data'] = np.transpose(full_data)
 
     return metadata
 
