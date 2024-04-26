@@ -1,10 +1,11 @@
 import pytest
 from unittest import TestCase
 import os
+import numpy as np
 
 from notebooks.utilities import retrieve_anode_material
-from notebooks.xrd_file_parser import file_content, _pattern_match, ras_file_parser, asc_file_parser, xrd_file_parser
-
+from notebooks.xrd_file_parser import file_content, _pattern_match, xrd_file_parser
+from notebooks.xrd_file_parser import txt_file_parser, ras_file_parser, asc_file_parser
 
 class TestRetrieveAnodeMaterial(TestCase):
 
@@ -160,16 +161,42 @@ class TestXrdAscFileParser(TestCase):
             assert _exp == _ret
 
 
+class TextTxtFileParser(TestCase):
+
+    TXT_FILE_NAME = "data/xrd_file.txt"
+
+    def setUp(self):
+        _file_path = os.path.dirname(__file__)
+        self.txt_file_name = os.path.abspath(os.path.join(_file_path, self.TXT_FILE_NAME))
+
+    def test_txt_file_parser(self):
+
+        metadata_returned = txt_file_parser(self.txt_file_name)
+        x_axis_returned = metadata_returned['data']['2theta']
+        y_axis_returned = metadata_returned['data']['intensity']
+
+        x_axis_expected = np.array([7.0144, 7.0314, 7.0484, 7.0654, 7.0824])
+        y_axis_expected = np.array([24868.9923, 24723.026, 24776.6393, 24816.3415, 24855.5135])
+
+        for _exp, _ret in zip(x_axis_expected, x_axis_returned):
+            assert _exp == _ret
+
+        for _exp, _ret in zip(y_axis_expected, y_axis_returned):
+            assert _exp == _ret
+
+
 class TestXrdFileParser(TestCase):
     """testing using the base method that will call the respective xrd extension file dependent methods"""
 
     ASC_FILE_NAME = "data/xrd_file.asc"
     RAS_FILE_NAME = "data/xrd_file.ras"
+    TXT_FILE_NAME = "data/xrd_file.txt"
 
     def setUp(self):
         _file_path = os.path.dirname(__file__)
         self.asc_file_name = os.path.abspath(os.path.join(_file_path, self.ASC_FILE_NAME))
         self.ras_file_name = os.path.abspath(os.path.join(_file_path, self.RAS_FILE_NAME))
+        self.txt_file_name = os.path.abspath(os.path.join(_file_path, self.TXT_FILE_NAME))
 
     def test_ras_file_parser(self):
 
@@ -217,3 +244,19 @@ class TestXrdFileParser(TestCase):
 
         for _exp, _ret in zip(data_expected, data_returned):
             assert _exp == _ret
+
+    def test_txt_file_parser(self):
+
+        metadata_returned = xrd_file_parser(self.txt_file_name)
+        x_axis_returned = metadata_returned['data']['2theta']
+        y_axis_returned = metadata_returned['data']['intensity']
+
+        x_axis_expected = np.array([7.0144, 7.0314, 7.0484, 7.0654, 7.0824])
+        y_axis_expected = np.array([24868.9923, 24723.026, 24776.6393, 24816.3415, 24855.5135])
+
+        for _exp, _ret in zip(x_axis_expected, x_axis_returned):
+            assert _exp == _ret
+
+        for _exp, _ret in zip(y_axis_expected, y_axis_returned):
+            assert _exp == _ret
+            

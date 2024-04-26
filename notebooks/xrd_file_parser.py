@@ -11,7 +11,7 @@ xrd_patterns = {'ras': {'alpha1': r"\*HW_XG_WAVE_LENGTH_ALPHA1\s{1}\"(\d\.\d*)\"
                         'alpha2': r"\*WAVE_LENGTH2\s*\=\s*(\d\.\d*)",
                         '2theta': {'start': r"\*START\s*\=\s*(\d*)",
                                    'stop': r"\*STOP\s*\=\s*(\d*)",
-                                   'step': r"\*STEP\s*\=\s*(\d*\.\d*)"}
+                                   'step': r"\*STEP\s*\=\s*(\d*\.\d*)"},
                         },
                 }
 
@@ -47,6 +47,8 @@ def xrd_file_parser(xrd_file_name):
         return ras_file_parser(xrd_file_name)
     elif extension == '.asc':
         return asc_file_parser(xrd_file_name)
+    elif extension == '.txt':
+        return txt_file_parser(xrd_file_name)
 
     return None
 
@@ -154,3 +156,11 @@ def ras_file_parser(xrd_file_name):
                         'error': np.array(data['error'])}
 
     return metadata
+
+
+def txt_file_parser(xrd_file_name):
+    data = pd.read_csv(xrd_file_name, names=['2theta', 'intensity'], skiprows=1, sep='\t')
+    return {'data': {'2theta': np.array(data['2theta']),
+                     'intensity': np.array(data['intensity']),
+                     },
+            }
