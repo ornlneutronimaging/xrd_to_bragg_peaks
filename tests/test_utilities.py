@@ -259,4 +259,3 @@ class TestXrdFileParser(TestCase):
 
         for _exp, _ret in zip(y_axis_expected, y_axis_returned):
             assert _exp == _ret
-            
