@@ -61,10 +61,12 @@ class TestRetrieveAnodeMaterial(TestCase):
 class TestXrdFileParser(TestCase):
 
     RAS_FILE_NAME = "data/xrd_file.ras"
+    ASC_FILE_NAME = "data/xrd_file.asc"
 
     def setUp(self):
         _file_path = os.path.dirname(__file__)
         self.ras_file_name = os.path.abspath(os.path.join(_file_path, self.RAS_FILE_NAME))
+        self.asc_file_name = os.path.abspath(os.path.join(_file_path, self.ASC_FILE_NAME))
 
     def test_pattern_match(self):
         content = file_content(self.ras_file_name)

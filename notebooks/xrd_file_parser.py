@@ -7,9 +7,11 @@ xrd_patterns = {'ras': {'alpha1': r"\*HW_XG_WAVE_LENGTH_ALPHA1\s{1}\"(\d\.\d*)\"
                         'alpha2': r"\*HW_XG_WAVE_LENGTH_ALPHA2\s{1}\"(\d\.\d*)\"",
                         'beta': r"\*HW_XG_WAVE_LENGTH_BETA\s{1}\"(\d\.\d*)\"",
                         },
-                'asc': {'alpha1': None,
-                        'alpha2': None,
-                        'beta': None,
+                'asc': {'alpha1': r"\*WAVE_LENGTH1\s*\=\s*(\d\.\d*)",
+                        'alpha2': r"\*WAVE_LENGTH2\s*\=\s*(\d\.\d*)",
+                        '2theta': {'start': r"\*START\s*\=\s*(\d*)",
+                                   'stop': r"\*STOP\s*\=\s*(\d*)",
+                                   'step': r"\*STEP\s*\=\s*(\d*\.\d*)"}
                         },
                 }
 
@@ -18,10 +20,12 @@ xrd_starts_with = {'ras': {'alpha1': "*HW_XG_WAVE_LENGTH_ALPHA1",
                            'beta': "*HW_XG_WAVE_LENGTH_BETA",
                            'data_start': "*RAS_INT_START",
                            },
-                   'asc': {'alpha1': None,
-                           'alpha2': None,
-                           'beta': None,
-                           'data_start': None,
+                   'asc': {'alpha1': "*WAVE_LENGTH1",
+                           'alpha2': "*WAVE_LENGTH2",
+                           'data_start': "*INDEX",
+                           '2theta': {'start': "*START",
+                                      'stop': "*STOP",
+                                      'step': "*STEP"}
                            },
                    }
 
@@ -41,6 +45,8 @@ def xrd_file_parser(xrd_file_name):
 
     if extension == '.ras':
         return ras_file_parser(xrd_file_name)
+    elif extension == '.asc':
+        return asc_file_parser(xrd_file_name)
 
     return None
 
@@ -51,6 +57,47 @@ def _pattern_match(pattern=None, line_starts_with=None, line=None):
         if m:
             return m.group(1)
     return None
+
+
+def asc_file_parser(xrd_file_name):
+    """retrieve the following metadata from the ASC file"""
+    metadata = {'alpha1': None,
+                'alpha2': None,
+                '2theta': {'start': None,
+                           'stop': None,
+                           'step': None,
+                           },
+                'data_first_line': 0,
+                }
+    content = file_content(xrd_file_name)
+
+    first_data_row = 0
+    for line in content:
+
+        for _key in ['alpha1', 'alpha2']:
+            match = _pattern_match(line=line,
+                                   pattern=xrd_patterns['asc'][_key],
+                                   line_starts_with=xrd_starts_with['asc'][_key])
+            if match:
+                metadata[_key] = match
+                break
+
+        for _key in xrd_patterns['asc']['2theta'].keys():
+
+            match = _pattern_match(line=line,
+                                   pattern=xrd_patterns['asc']['2theta'][_key],
+                                   line_starts_with=xrd_starts_with['asc']['2theta'][_key])
+            if match:
+                metadata['2theta'][_key] = match
+                break
+
+        first_data_row += 1
+
+        if line.startswith(xrd_starts_with['asc']['data_start']):
+            first_data_row += 1
+            metadata['data_first_line'] = first_data_row
+
+    return metadata
 
 
 def ras_file_parser(xrd_file_name):
