@@ -4,7 +4,7 @@ import pytest
 import os
 
 from notebooks.utilities import retrieve_anode_material
-from notebooks.utilities import from_theta_to_lambda
+from notebooks.utilities import from_theta_to_d
 from notebooks.utilities import find_peaks_above_threshold
 from notebooks.xrd_file_parser import xrd_file_parser
 
@@ -63,14 +63,14 @@ class TestRetrieveAnodeMaterial(TestCase):
         assert expected_element == returned_element
 
 
-class TestFromThetaToLambda(TestCase):
+class TestFromThetaTod(TestCase):
 
     def test_simple_conversion_with_rad(self):
         two_theta_rad = [np.pi/2., np.pi/3.]
         two_theta_expected = [0.88388, 1.25]
-        two_theta_returned = from_theta_to_lambda(two_theta=two_theta_rad,
-                                                  units='rad',
-                                                  xrd_lambda_angstroms=1.25)
+        two_theta_returned = from_theta_to_d(two_theta=two_theta_rad,
+                                             units='rad',
+                                             xrd_lambda_angstroms=1.25)
 
         for _exp, _ret in zip(two_theta_expected, two_theta_returned):
             assert np.abs(_exp - _ret) < PRECISION
@@ -78,9 +78,9 @@ class TestFromThetaToLambda(TestCase):
     def test_simple_conversion_with_deg(self):
         two_theta_deg = [90, 60]
         two_theta_expected = [0.88388, 1.25]
-        two_theta_returned = from_theta_to_lambda(two_theta=two_theta_deg,
-                                                  units='deg',
-                                                  xrd_lambda_angstroms=1.25)
+        two_theta_returned = from_theta_to_d(two_theta=two_theta_deg,
+                                             units='deg',
+                                             xrd_lambda_angstroms=1.25)
 
         for _exp, _ret in zip(two_theta_expected, two_theta_returned):
             assert np.abs(_exp - _ret) < PRECISION

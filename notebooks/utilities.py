@@ -53,8 +53,8 @@ def retrieve_anode_material(alpha1:float =None, alpha2:float =None, beta:float =
     return None
 
 
-def from_theta_to_lambda(two_theta=None, units='rad', xrd_lambda_angstroms=None):
-    """returns the lambda value of the twoTheta value of a given wavelength (xrd_lambda_angstroms)"""
+def from_theta_to_d(two_theta=None, units='rad', xrd_lambda_angstroms=None):
+    """returns the d value of the twoTheta value of a given wavelength (xrd_lambda_angstroms)"""
     if units == 'deg':
         two_theta = np.array([np.deg2rad(_theta) for _theta in two_theta])
     else:
