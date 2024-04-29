@@ -56,6 +56,8 @@ def from_theta_to_lambda(two_theta=None, units='rad', xrd_lambda_angstroms=None)
     """returns the lambda value of the twoTheta value of a given wavelength (xrd_lambda_angstroms)"""
     if units == 'deg':
         two_theta = np.array([np.deg2rad(_theta) for _theta in two_theta])
+    else:
+        two_theta = np.array(two_theta)
 
     d = xrd_lambda_angstroms / (2 * np.sin(two_theta / 2))
 

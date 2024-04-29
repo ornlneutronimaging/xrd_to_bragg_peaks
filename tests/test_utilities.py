@@ -1,7 +1,10 @@
 from unittest import TestCase
+import numpy as np
 
 from notebooks.utilities import retrieve_anode_material
 from notebooks.utilities import from_theta_to_lambda
+
+PRECISION = 0.0001
 
 
 class TestRetrieveAnodeMaterial(TestCase):
@@ -58,5 +61,22 @@ class TestRetrieveAnodeMaterial(TestCase):
 
 class TestFromThetaToLambda(TestCase):
 
-    def test_simple_conversion(self):
-        pass
+    def test_simple_conversion_with_rad(self):
+        two_theta_rad = [np.pi/2., np.pi/3.]
+        two_theta_expected = [0.88388, 1.25]
+        two_theta_returned = from_theta_to_lambda(two_theta=two_theta_rad,
+                                                  units='rad',
+                                                  xrd_lambda_angstroms=1.25)
+
+        for _exp, _ret in zip(two_theta_expected, two_theta_returned):
+            assert np.abs(_exp - _ret) < PRECISION
+
+    def test_simple_conversion_with_deg(self):
+        two_theta_deg = [90, 60]
+        two_theta_expected = [0.88388, 1.25]
+        two_theta_returned = from_theta_to_lambda(two_theta=two_theta_deg,
+                                                  units='deg',
+                                                  xrd_lambda_angstroms=1.25)
+
+        for _exp, _ret in zip(two_theta_expected, two_theta_returned):
+            assert np.abs(_exp - _ret) < PRECISION

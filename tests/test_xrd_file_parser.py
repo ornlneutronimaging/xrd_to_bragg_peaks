@@ -3,7 +3,6 @@ from unittest import TestCase
 import os
 import numpy as np
 
-from notebooks.utilities import retrieve_anode_material
 from notebooks.xrd_file_parser import file_content, _pattern_match, xrd_file_parser
 from notebooks.xrd_file_parser import txt_file_parser, ras_file_parser, asc_file_parser
 
