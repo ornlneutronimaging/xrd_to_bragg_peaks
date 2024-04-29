@@ -1,8 +1,12 @@
 from unittest import TestCase
 import numpy as np
+import pytest
+import os
 
 from notebooks.utilities import retrieve_anode_material
 from notebooks.utilities import from_theta_to_lambda
+from notebooks.utilities import find_peaks_above_threshold
+from notebooks.xrd_file_parser import xrd_file_parser
 
 PRECISION = 0.0001
 
@@ -80,3 +84,53 @@ class TestFromThetaToLambda(TestCase):
 
         for _exp, _ret in zip(two_theta_expected, two_theta_returned):
             assert np.abs(_exp - _ret) < PRECISION
+
+
+class TestFindPeaks(TestCase):
+
+    TXT_FILE_NAME = "data/xrd_file_full.txt"
+
+    def setUp(self):
+        _file_path = os.path.dirname(__file__)
+        self.txt_file_name = os.path.abspath(os.path.join(_file_path, self.TXT_FILE_NAME))
+
+    def test_xaxis_and_yaxis_can_not_be_none(self):
+        xaxis = None
+        yaxis = np.array([1, 2, 3, 4])
+
+        with pytest.raises(AttributeError):
+            xaxis, yaxis = find_peaks_above_threshold(xaxis=xaxis,
+                                                      yaxis=yaxis)
+
+        xaxis = np.array([1, 2, 3, 4])
+        yaxis = None
+
+        with pytest.raises(AttributeError):
+            xaxis, yaxis = find_peaks_above_threshold(xaxis=xaxis,
+                                                      yaxis=yaxis)
+
+        xaxis = None
+        yaxis = None
+        with pytest.raises(AttributeError):
+            xaxis, yaxis = find_peaks_above_threshold(xaxis=xaxis,
+                                                      yaxis=yaxis)
+
+    def test_retrieve_peaks(self):
+        metadata_dict = xrd_file_parser(self.txt_file_name)
+        yaxis = metadata_dict['data']['intensity']
+        xaxis = metadata_dict['data']['2theta']
+
+        peaks_dict = find_peaks_above_threshold(xaxis=xaxis,
+                                                yaxis=yaxis)
+
+        yaxis_peaks_returned = peaks_dict['yaxis'][0:3]
+        xaxis_peaks_returned = peaks_dict['xaxis'][0:3]
+
+        yaxis_peaks_expected = np.array([24976.1222, 87214.3515, 79633.2479])
+        xaxis_peaks_expected = np.array([7.2524, 11.9614, 17.6904])
+
+        for _y_exp, _y_ret in zip(yaxis_peaks_expected, yaxis_peaks_returned):
+            assert _y_exp == _y_ret
+
+        for _x_exp, _x_ret in zip(xaxis_peaks_expected, xaxis_peaks_returned):
+            assert _x_exp == _x_ret

@@ -1,4 +1,5 @@
 import numpy as np
+import scipy
 
 xrd_lambda_angstroms_dict = {'cu': {'average': 1.54184,
                                     'alpha1': 1.54056,
@@ -62,3 +63,22 @@ def from_theta_to_lambda(two_theta=None, units='rad', xrd_lambda_angstroms=None)
     d = xrd_lambda_angstroms / (2 * np.sin(two_theta / 2))
 
     return d
+
+
+def find_peaks_above_threshold(xaxis=None, yaxis=None, threshold=200, distance=200):
+    if (xaxis is None) or (yaxis is None):
+        raise AttributeError("xaxis and yaxis can not be none!")
+
+    peaks = scipy.signal.find_peaks(yaxis, distance=distance)
+
+    index_peaks = peaks[0]
+    xaxis_peaks = xaxis[index_peaks]
+    yaxis_peaks = yaxis[index_peaks]
+
+    yaxis_peaks_index_above_threshold = yaxis_peaks > threshold
+
+    xaxis_peaks_above_threshold = xaxis_peaks[yaxis_peaks_index_above_threshold]
+    yaxis_peaks_above_threshold = yaxis_peaks[yaxis_peaks_index_above_threshold]
+
+    return {'xaxis': xaxis_peaks_above_threshold,
+            'yaxis': yaxis_peaks_above_threshold}
