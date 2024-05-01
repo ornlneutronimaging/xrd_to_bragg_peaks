@@ -30,6 +30,12 @@ xrd_starts_with = {'ras': {'alpha1': "*HW_XG_WAVE_LENGTH_ALPHA1",
                    }
 
 
+class XrdFileType:
+    ras = '.ras'
+    asc = '.asc'
+    txt = '.txt'
+
+
 def file_content(file_name):
     with open(file_name, 'r', errors='replace') as f:
         content = f.readlines()
@@ -37,18 +43,21 @@ def file_content(file_name):
     return content
 
 
-def xrd_file_parser(xrd_file_name):
-    if not os.path.exists(xrd_file_name):
+def xrd_file_parser(xrd_file_name=None, xrd_file_content=None, xrd_file_type=XrdFileType.ras):
+    if (not os.path.exists(xrd_file_name)) and (xrd_file_content is None):
         return None
 
-    name, extension = os.path.splitext(xrd_file_name)
+    if xrd_file_name:
+        name, extension = os.path.splitext(xrd_file_name)
+    else:
+        extension = xrd_file_type
 
-    if extension == '.ras':
-        return ras_file_parser(xrd_file_name)
-    elif extension == '.asc':
-        return asc_file_parser(xrd_file_name)
-    elif extension == '.txt':
-        return txt_file_parser(xrd_file_name)
+    if extension == XrdFileType.ras:
+        return ras_file_parser(xrd_file_name, xrd_file_content)
+    elif extension == XrdFileType.asc:
+        return asc_file_parser(xrd_file_name, xrd_file_content)
+    elif extension == XrdFileType.txt:
+        return txt_file_parser(xrd_file_name, xrd_file_content)
 
     return None
 
@@ -61,7 +70,7 @@ def _pattern_match(pattern=None, line_starts_with=None, line=None):
     return None
 
 
-def asc_file_parser(xrd_file_name):
+def asc_file_parser(xrd_file_name=None, xrd_file_content=None):
     """retrieve the following metadata from the ASC file"""
     metadata = {'alpha1': None,
                 'alpha2': None,
@@ -117,7 +126,7 @@ def asc_file_parser(xrd_file_name):
     return metadata
 
 
-def ras_file_parser(xrd_file_name):
+def ras_file_parser(xrd_file_name=None, xrd_file_content=None):
     """retrieve the following metadata from the RAS file"""
     metadata = {'alpha1': None,
                 'alpha2': None,
@@ -158,8 +167,16 @@ def ras_file_parser(xrd_file_name):
     return metadata
 
 
-def txt_file_parser(xrd_file_name):
-    data = pd.read_csv(xrd_file_name, names=['2theta', 'intensity'], skiprows=1, sep='\t')
+def txt_file_parser(xrd_file_name=None, xrd_file_content=None):
+    if xrd_file_name is None:
+        if xrd_file_content is None:
+            raise AttributeError("Provide either xrd_file_name or xrd_file_content")
+
+        data = pd.read_csv(xrd_file_content, names=['2theta', 'intensity'], skiprows=1, sep='\t')
+
+    else:
+        data = pd.read_csv(xrd_file_name, names=['2theta', 'intensity'], skiprows=1, sep='\t')
+
     return {'data': {'2theta': np.array(data['2theta']),
                      'intensity': np.array(data['intensity']),
                      },
