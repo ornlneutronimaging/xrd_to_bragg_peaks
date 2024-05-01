@@ -2,6 +2,7 @@ import os
 import re
 import pandas as pd
 import numpy as np
+from io import StringIO
 
 xrd_patterns = {'ras': {'alpha1': r"\*HW_XG_WAVE_LENGTH_ALPHA1\s{1}\"(\d\.\d*)\"",
                         'alpha2': r"\*HW_XG_WAVE_LENGTH_ALPHA2\s{1}\"(\d\.\d*)\"",
@@ -142,7 +143,15 @@ def ras_file_parser(xrd_file_name=None, xrd_file_content=None):
                 'data_first_line': 0,
                 }
 
-    content = file_content(xrd_file_name)
+    if xrd_file_name is None:
+        if xrd_file_content is None:
+            raise AttributeError("Provide either xrd_file_name or xrd_file_content")
+
+        else:
+            content = xrd_file_content
+
+    else:
+        content = file_content(xrd_file_name)
 
     for line in content:
 
@@ -161,11 +170,19 @@ def ras_file_parser(xrd_file_name=None, xrd_file_content=None):
             break
 
     # loading data now
-    data = pd.read_csv(xrd_file_name,
-                       names=['2theta', 'intensity', 'error'],
-                       skiprows=metadata['data_first_line'],
-                       sep=" ",
-                       encoding='latin1')
+    if xrd_file_content:
+        data = pd.read_csv(StringIO("".join(content)),
+                           names=['2theta', 'intensity', 'error'],
+                           skiprows=metadata['data_first_line'],
+                           sep=" ",
+                           encoding='latin1')
+    else:
+        data = pd.read_csv(xrd_file_name,
+                           names=['2theta', 'intensity', 'error'],
+                           skiprows=metadata['data_first_line'],
+                           sep=" ",
+                           encoding='latin1')
+
     data = data[:-2]
     metadata['data'] = {'2theta': np.array(data['2theta']),
                         'intensity': np.array(data['intensity']),

@@ -270,3 +270,30 @@ class TestContentFileParser(TestCase):
 
         for _exp, _ret in zip(data_expected, data_returned):
             assert _exp == _ret
+
+    def test_ras(self):
+
+        content_of_file = file_content(self.ras_file_name)
+        with pytest.raises(AttributeError):
+            ras_file_parser()
+
+        metadata_returned = ras_file_parser(xrd_file_content=content_of_file)
+
+        metadata_expected = {'alpha1': '1.540593',
+                             'alpha2': '1.544414',
+                             'beta': '1.392250',
+                             'data_first_line': 19,
+                             }
+
+        data_expected = {'2theta': [20, 20.01, 20.02, 20.03, 20.04, 20.05, 20.06],
+                         'intensity': [165., 187., 159., 160., 153., 203., 168.],
+                         'error': [1., 1., 1., 1., 1., 1., 1.]}
+
+        for key in metadata_expected.keys():
+            assert metadata_returned[key] == metadata_expected[key]
+
+        data_returned = metadata_returned['data']
+
+        for key in data_returned.keys():
+            for _exp, _return in zip(data_returned[key], data_expected[key]):
+                assert _exp == _return
