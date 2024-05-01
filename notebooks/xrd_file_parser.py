@@ -81,7 +81,15 @@ def asc_file_parser(xrd_file_name=None, xrd_file_content=None):
                 'data': None,
                 'data_first_line': 0,
                 }
-    content = file_content(xrd_file_name)
+    if xrd_file_name is None:
+        if xrd_file_content is None:
+            raise AttributeError("Provide either xrd_file_name or xrd_file_content")
+
+        else:
+            content = xrd_file_content
+
+    else:
+        content = file_content(xrd_file_name)
 
     first_data_row = 0
     for line in content:
@@ -113,13 +121,12 @@ def asc_file_parser(xrd_file_name=None, xrd_file_content=None):
 
     # retrieve data
     full_data = []
-    content = file_content(xrd_file_name)
+
     content = content[first_data_row:-3]
     for _row in content:
         _row_array = _row.split(",")
         for _element in _row_array:
             full_data.append(int(_element.strip()))
-
 
     metadata['data'] = np.transpose(full_data)
 

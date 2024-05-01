@@ -242,4 +242,31 @@ class TestContentFileParser(TestCase):
 
         for _exp, _ret in zip(y_axis_expected, y_axis_returned):
             assert _exp == _ret
-            
+
+    def test_asc(self):
+
+        content_of_file = file_content(self.asc_file_name)
+        with pytest.raises(AttributeError):
+            asc_file_parser()
+
+        metadata_returned = asc_file_parser(xrd_file_content=content_of_file)
+
+        metadata_expected = {'alpha1': '1.54059',
+                             'alpha2': '1.54441',
+                             'data_first_line': 28,
+                             }
+        for key in metadata_expected.keys():
+            assert metadata_returned[key] == metadata_expected[key]
+
+        twotheta_expected = {'start': '20',
+                             'stop': '120',
+                             'step': '0.01',
+                             }
+        for key in twotheta_expected.keys():
+            assert metadata_returned['2theta'][key] == twotheta_expected[key]
+
+        data_expected = [165, 187, 159, 160, 153, 203, 168, 161, 153, 167, 159, 175]
+        data_returned = metadata_returned['data']
+
+        for _exp, _ret in zip(data_expected, data_returned):
+            assert _exp == _ret
