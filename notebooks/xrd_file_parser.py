@@ -45,11 +45,15 @@ def file_content(file_name):
 
 
 def xrd_file_parser(xrd_file_name=None, xrd_file_content=None, xrd_file_type=XrdFileType.ras):
-    if (not os.path.exists(xrd_file_name)) and (xrd_file_content is None):
+    if (xrd_file_name is None) and (xrd_file_content is None):
         return None
 
     if xrd_file_name:
-        name, extension = os.path.splitext(xrd_file_name)
+        if os.path.exists(xrd_file_name):
+            name, extension = os.path.splitext(xrd_file_name)
+        else:
+            raise ValueError("XRD file does not exist!")
+
     else:
         extension = xrd_file_type
 

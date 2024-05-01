@@ -6,6 +6,7 @@ from io import StringIO
 
 from notebooks.xrd_file_parser import file_content, _pattern_match, xrd_file_parser
 from notebooks.xrd_file_parser import txt_file_parser, ras_file_parser, asc_file_parser
+from notebooks.xrd_file_parser import XrdFileType
 
 
 class TestXrdRasFileParser(TestCase):
@@ -243,6 +244,27 @@ class TestContentFileParser(TestCase):
         for _exp, _ret in zip(y_axis_expected, y_axis_returned):
             assert _exp == _ret
 
+    def test_txt_via_xrd_file_parser(self):
+
+        content_of_file = StringIO("".join(file_content(self.txt_file_name)))
+
+        with pytest.raises(AttributeError):
+            txt_file_parser()
+
+        metadata_returned = xrd_file_parser(xrd_file_content=content_of_file, xrd_file_type=XrdFileType.txt)
+
+        x_axis_returned = metadata_returned['data']['2theta']
+        y_axis_returned = metadata_returned['data']['intensity']
+
+        x_axis_expected = np.array([7.0144, 7.0314, 7.0484, 7.0654, 7.0824])
+        y_axis_expected = np.array([24868.9923, 24723.026, 24776.6393, 24816.3415, 24855.5135])
+
+        for _exp, _ret in zip(x_axis_expected, x_axis_returned):
+            assert _exp == _ret
+
+        for _exp, _ret in zip(y_axis_expected, y_axis_returned):
+            assert _exp == _ret
+
     def test_asc(self):
 
         content_of_file = file_content(self.asc_file_name)
@@ -271,6 +293,34 @@ class TestContentFileParser(TestCase):
         for _exp, _ret in zip(data_expected, data_returned):
             assert _exp == _ret
 
+    def test_asc_via_xrd_file_parser(self):
+
+        content_of_file = file_content(self.asc_file_name)
+        with pytest.raises(AttributeError):
+            asc_file_parser()
+
+        metadata_returned = xrd_file_parser(xrd_file_content=content_of_file, xrd_file_type=XrdFileType.asc)
+
+        metadata_expected = {'alpha1': '1.54059',
+                             'alpha2': '1.54441',
+                             'data_first_line': 28,
+                             }
+        for key in metadata_expected.keys():
+            assert metadata_returned[key] == metadata_expected[key]
+
+        twotheta_expected = {'start': '20',
+                             'stop': '120',
+                             'step': '0.01',
+                             }
+        for key in twotheta_expected.keys():
+            assert metadata_returned['2theta'][key] == twotheta_expected[key]
+
+        data_expected = [165, 187, 159, 160, 153, 203, 168, 161, 153, 167, 159, 175]
+        data_returned = metadata_returned['data']
+
+        for _exp, _ret in zip(data_expected, data_returned):
+            assert _exp == _ret
+
     def test_ras(self):
 
         content_of_file = file_content(self.ras_file_name)
@@ -278,6 +328,34 @@ class TestContentFileParser(TestCase):
             ras_file_parser()
 
         metadata_returned = ras_file_parser(xrd_file_content=content_of_file)
+
+        metadata_expected = {'alpha1': '1.540593',
+                             'alpha2': '1.544414',
+                             'beta': '1.392250',
+                             'data_first_line': 19,
+                             }
+
+        data_expected = {'2theta': [20, 20.01, 20.02, 20.03, 20.04, 20.05, 20.06],
+                         'intensity': [165., 187., 159., 160., 153., 203., 168.],
+                         'error': [1., 1., 1., 1., 1., 1., 1.]}
+
+        for key in metadata_expected.keys():
+            assert metadata_returned[key] == metadata_expected[key]
+
+        data_returned = metadata_returned['data']
+
+        for key in data_returned.keys():
+            for _exp, _return in zip(data_returned[key], data_expected[key]):
+                assert _exp == _return
+
+    def test_ras_via_xrd_file_parser(self):
+
+        content_of_file = file_content(self.ras_file_name)
+        with pytest.raises(AttributeError):
+            ras_file_parser()
+
+        metadata_returned = xrd_file_parser(xrd_file_content=content_of_file,
+                                            xrd_file_type=XrdFileType.ras)
 
         metadata_expected = {'alpha1': '1.540593',
                              'alpha2': '1.544414',
