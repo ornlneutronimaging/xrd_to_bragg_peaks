@@ -15,6 +15,7 @@ xrd_lambda_angstroms_dict = {'cu': {'average': 1.54184,
                                     'alpha1': 0.55942,
                                     'alpha2': 0.56381,
                                     'beta': 0.49708,
+
                                    },
                              'cr': {'average': 2.291,
                                     'alpha1': 2.2897,
@@ -38,12 +39,25 @@ def retrieve_anode_material(alpha1:float =None, alpha2:float =None, beta:float =
     """return the anode material from lookup table"""
     
     for material in xrd_lambda_angstroms_dict.keys():
+
+        if (alpha1 is None) and (alpha2 is None):
+
+            if beta:
+                if np.abs(beta - xrd_lambda_angstroms_dict[material]['beta']) > tolerance_error:
+                    continue
+                else:
+                    return material
+            else:
+                continue
+
         if alpha1:
             if np.abs(alpha1 - xrd_lambda_angstroms_dict[material]['alpha1']) > tolerance_error:
                 continue
+
         if alpha2:
             if np.abs(alpha2 - xrd_lambda_angstroms_dict[material]['alpha2']) > tolerance_error:
                 continue
+
         if beta:
             if np.abs(beta - xrd_lambda_angstroms_dict[material]['beta']) > tolerance_error:
                 continue

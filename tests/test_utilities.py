@@ -44,7 +44,6 @@ class TestRetrieveAnodeMaterial(TestCase):
         assert expected_element == returned_element
 
     def test_not_matching_cases(self):
-
         alpha1 = 1.55
         returned_element = retrieve_anode_material(alpha1=alpha1)
         expected_element = None
@@ -60,6 +59,19 @@ class TestRetrieveAnodeMaterial(TestCase):
         alpha1 = 1.5404
         returned_element = retrieve_anode_material(alpha1=alpha1, tolerance_error=0.0001)
         expected_element = None
+        assert expected_element == returned_element
+
+    def test_passing_no_input(self):
+        alpha1 = None
+        alpha2 = None
+        beta = None
+        expected_element = None
+        returned_element = retrieve_anode_material(alpha1=alpha1, alpha2=alpha2, beta=beta)
+        assert expected_element == returned_element
+
+    def test_not_passing_any_input(self):
+        expected_element = None
+        returned_element = retrieve_anode_material()
         assert expected_element == returned_element
 
 
